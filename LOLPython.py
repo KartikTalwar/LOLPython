@@ -1,15 +1,21 @@
+
 #!/usr/bin/env python
-# Implementation of the LOLPython language.
-# Converts from LOLPython to Python then optionally runs the Python.
 
-# This package depends on PLY -- http://www.dabeaz.com/ply/
+"""
 
-# Written by Andrew Dalke <dalke@dalkescientific.com>
-# Dalke Scientific Software, LLC
-# 1 June 2007, Gothenburg, Sweden
-# 
-# This software is in the public domain.  For details see:
-#   http://creativecommons.org/licenses/publicdomain/
+ Implementation of the LOLPython language.
+ Converts from LOLPython to Python then optionally runs the Python.
+
+ This package depends on PLY -- http://www.dabeaz.com/ply/
+
+ Written by Andrew Dalke <dalke@dalkescientific.com>
+ Dalke Scientific Software, LLC
+ 1 June 2007, Gothenburg, Sweden
+ 
+ This software is in the public domain.  For details see:
+ http://creativecommons.org/licenses/publicdomain/
+ 
+"""
 
 
 import sys
@@ -26,6 +32,7 @@ __VERSION__ = "1.0"
 # Translating LOLPython tokens to Python tokens
 # This could be cleaned up.  For example, some of
 # these tokens could be merged into one.
+
 tokens = (
     "NAME",      # variable names
     "RESERVED",  # Used for Python reserved names
@@ -45,6 +52,7 @@ tokens = (
     "WS",
     "NEWLINE",
 )
+
 
 # Helper functions for making given token types
 def OP(t, value):
@@ -205,30 +213,39 @@ def t_MINUS_EQUAL(t):
 def t_DIV(t):
     r"SMASHES[ ]+INTO\b"
     return OP(t, "/")
+    
 def t_DIV_EQUAL(t):
     r"SMASHES[ ]+INTO[ ]+HAS\b"
     return OP(t, "/=")
+    
 def t_TRUEDIV(t):
     r"SMASHES[ ]+NICELY[ ]+INTO\b"
     return OP(t, "//")
+
 def t_MUL(t):
     r"OF[ ]THOSE\b"
     return OP(t, "*")
+
 def t_MUL_EQUAL(t):
     r"COPIES[ ]+(?:HIM|HER|IT)SELF[ ]+BY\b"
     return OP(t, "*=")
+
 def t_POW(t):
     r"BY[ ]+GRAYSKULL[ ]+POWER"
     return OP(t, "**")
+
 def t_IN(t):
     r"IN[ ]+(?:UR|THE|THIS)\b"
     return OP(t, "in")
+
 def t_del(t):
     r"DO[ ]+NOT[ ]+WANT\b"
     return RESERVED(t, "del")
+
 def t_and(t):
     r"\&"
     return RESERVED(t, "and")
+
 def t_or(t):
     r"OR[ ]+MABEE\b"
     return RESERVED(t, "or")
@@ -397,6 +414,7 @@ def t_error(t):
     t.lexer.skip(1)
 
 
+
 ## I implemented INDENT / DEDENT generation as a post-processing filter
 
 # The original lex token stream contains WS and NEWLINE characters.
@@ -412,6 +430,7 @@ def t_error(t):
 #  0) no colon hence no need to indent
 #  1) "if 1: go()" - simple statements have a COLON but no need for an indent
 #  2) "if 1:\n  go()" - complex statements have a COLON NEWLINE and must indent
+
 NO_INDENT = 0
 MAY_INDENT = 1
 MUST_INDENT = 2
@@ -420,6 +439,7 @@ MUST_INDENT = 2
 def track_tokens_filter(lexer, tokens):
     lexer.at_line_start = at_line_start = True
     indent = NO_INDENT
+    
     for token in tokens:
         token.at_line_start = at_line_start
 
@@ -596,6 +616,7 @@ class IndentWriter(object):
 
 # Split things up because the from __future__ statements must
 # go before any other code.
+
 HEADER = """# LOLPython to Python converter version 1.0
 # Written by Andrew Dalke, who should have been working on better things.
 
@@ -659,14 +680,17 @@ def to_python(s):
         elif t.type == "INDENT":
             output.indent += 1
             pass
+            
         elif t.type == "DEDENT":
             output.indent -= 1
             pass
+            
         elif t.type == "NEWLINE":
             write(t.value)
             output.at_first_column = True
             output = body_output
             write = output.write
+            
         elif t.type == "PRINT":
             if t.value == "stdout":
                 write("print ")
@@ -674,14 +698,19 @@ def to_python(s):
                 write("print >>_lol_sys.stderr, ")
             else:
                 raise AssertionError(t.value)
+                
         elif t.type == "AUTOCALL":
             write(t.value + "(")
+        
         elif t.type == "INLINE":
             write(t.value)
+        
         elif t.type == "ENDMARKER":
             write("\n# The end.\n")
+        
         elif t.type == "WS":
             output.leading_ws = t.value
+        
         elif t.type == "FUTURE":
             # Write to the header.  This is a hack.  Err, a hairball.
             output = header_output
@@ -765,3 +794,4 @@ def main(argv):
 
 if __name__ == "__main__":
     main(sys.argv)
+    
