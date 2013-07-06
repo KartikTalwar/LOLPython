@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 
 """
@@ -350,6 +349,7 @@ RESERVED_VALUES = {
     "EVEN": ("INLINE", "% 2 == 0"),
     "ODD": ("INLINE", "% 2 == 1"),
     "WIF": ("RESERVED", "with"),
+    "ITSLIKETHIS":("RESERVED","class")
     }
 
 def t_FLOAT(t):
